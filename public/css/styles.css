@@ -1,0 +1,20 @@
+/*COLOR PALLETE: #1A120B , #3C2A21, #D5CEA3, #E5E5CB 
+link: https://colorhunt.co/palette/1a120b3c2a21d5cea3e5e5cb*/
+
+
+*{
+    margin: 0; 
+    padding: 0; 
+}
+
+body
+{
+    display: flex; 
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: absolute;
+    width: 100%; 
+    height: 100%; 
+    background-color: #D5CEA3;
+}
