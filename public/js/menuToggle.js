@@ -23,6 +23,4 @@ menuButton.addEventListener("click", ()=>
                touchMenu.classList.toggle("hide-display");
           }, "200"); 
      }
-
-
 });

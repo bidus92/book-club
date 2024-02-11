@@ -1,12 +1,30 @@
-.homepage
+.title
 {
     display: flex; 
-    flex-direction: column;
-    position: absolute; 
+    position: relative;
+    font-size: 2.2em;
+    color: #1A120B;
+    text-shadow: 1px 1px .3em #3C2A21;
+    text-align: center;
+}
+
+.home-imgs
+{
+    display: flex; 
+    position: relative;
+    flex-wrap: wrap;
+    flex: 1;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: center; 
     width: 100%;
-    height: 100%; 
-    background-color: #D5CEA3;
-    overflow: hidden;
+    gap: 1.3rem;
+    z-index: 1;
+    bottom: .3em;
+}
+
+.img
+{
+    max-width: 20em; 
+    max-height: 20em; 
 }

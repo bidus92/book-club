@@ -29,7 +29,41 @@ app.get("/", (req, res) =>
     {
 
     });
-})
+});
+
+
+
+app.get("/reviews", (req, res) =>
+{
+    res.render("reviews.ejs", 
+    {
+
+    });
+});
+
+app.get("/suggestions", (req, res) =>
+{
+    res.render("suggestions.ejs", 
+    {
+
+    });
+});
+
+app.get("/notes", (req, res) =>
+{
+    res.render("notes.ejs", 
+    {
+
+    });
+});
+
+app.get("/portfolio", (req, res) =>
+{
+    res.render("index.ejs", 
+    {
+
+    });
+});
 
 
 app.listen(port, (res, error) =>
