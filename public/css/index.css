@@ -2,7 +2,7 @@
 {
     display: flex; 
     position: relative;
-    font-size: 2.2em;
+    font-size: 1.5em;
     color: #1A120B;
     text-shadow: 1px 1px .3em #3C2A21;
     text-align: center;
@@ -19,7 +19,7 @@
     align-items: center; 
     width: 100%;
     gap: 1.3rem;
-    z-index: 1;
+    z-index: 0;
     bottom: .3em;
 }
 

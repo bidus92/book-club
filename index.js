@@ -41,9 +41,9 @@ app.get("/reviews", (req, res) =>
     });
 });
 
-app.get("/suggestions", (req, res) =>
+app.get("/search", (req, res) =>
 {
-    res.render("suggestions.ejs", 
+    res.render("search.ejs", 
     {
 
     });
@@ -57,13 +57,6 @@ app.get("/notes", (req, res) =>
     });
 });
 
-app.get("/portfolio", (req, res) =>
-{
-    res.render("index.ejs", 
-    {
-
-    });
-});
 
 
 app.listen(port, (res, error) =>
