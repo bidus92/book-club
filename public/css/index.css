@@ -1,7 +1,10 @@
+
 .title
 {
     display: flex; 
     position: relative;
+    justify-content: center;
+    align-items: center;
     font-size: 1.5em;
     color: #1A120B;
     text-shadow: 1px 1px .3em #3C2A21;
