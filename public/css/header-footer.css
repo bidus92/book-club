@@ -7,7 +7,7 @@
     align-items: center;
     position: relative;
     min-width: 100%; 
-    min-height: 10vh;
+    min-height: 13vh;
     background-color: #3C2A21;
     z-index: 2;
     overflow: hidden;
@@ -26,27 +26,25 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-end;
-    width: auto; 
-    height: auto;
 }
 
 #book-club-logo > .logo
 {  
-    max-width: 80px;
-    max-height: 80px;
+    max-width: 70px;
+    max-height: 70px;
     border-radius: 50%;
 }
 
 .page-flex-container
 {
+    align-self: center;
     display:flex; 
     flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;  
-    width: 100%; 
-    height: auto; 
-    
+    width: 100%;
+    z-index: 1;
 }
 
 
@@ -106,7 +104,6 @@
 }
 .menu-btn
 {
-    margin-right: 48%;
     border: 0; 
     padding: .3em .5em;
     background-color: #3C2A21;
@@ -167,7 +164,6 @@
 
 #copyright
 {
-    align-self: flex-start;
     display: inline-flex; 
     flex-direction: row;
     align-items: center;
