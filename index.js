@@ -23,11 +23,16 @@ const db = new pg.Client({
 
 db.connect(); 
 
-app.get("/", (req, res) =>
+
+app.get("/", async (req, res) =>
 {
+    const test = await axios.get(`https://covers.openlibrary.org/b/isbn/9780345296054-L.jpg`);
+    const result = await axios.get("https://covers.openlibrary.org/b/isbn/9780307887436-L.jpg");
+
     res.render("index.ejs", 
     {
-
+        img1: test.config.url,
+        img2: result.config.url
     });
 });
 
@@ -41,7 +46,7 @@ app.get("/reviews", (req, res) =>
     });
 });
 
-app.get("/search", (req, res) =>
+app.get("/database", (req, res) =>
 {
     res.render("search.ejs", 
     {
@@ -57,6 +62,10 @@ app.get("/notes", (req, res) =>
     });
 });
 
+app.get("/portfolio", (req, res) =>
+{
+    res.redirect("https://bidus92.github.io/JB-Portfolio/");
+});
 
 
 app.listen(port, (res, error) =>

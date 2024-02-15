@@ -7,7 +7,7 @@
     align-items: center;
     position: relative;
     min-width: 100%; 
-    min-height: 13vh;
+    min-height: 15vh;
     background-color: #3C2A21;
     z-index: 2;
     overflow: hidden;
@@ -61,7 +61,7 @@
     z-index: 1;
     font-size: 2rem;
     transform: translateY(-100%);
-    transition: transform 500ms;
+    transition: transform 600ms;
 }
 
 .show-mobile-menu
@@ -205,6 +205,17 @@
 {
     scale: 1.2;
 }
+
+/* CSS for selected menu items */
+.selected
+{
+    background-color: #1A120B;
+}
+
+.selected a:link, .selected a:visited
+{
+    color: #E5E5CB;
+} 
 
 /* Media Queries */
 

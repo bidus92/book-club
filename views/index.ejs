@@ -1,13 +1,53 @@
 <%-include("./partials/header.ejs")%>
 
 <home class="page">
-    <div class="title">
-        <h1>JB's Worldwide Book Club</h1>
-    </div>
-    <div class="home-imgs">
-         <img class="img" src="/assets/images/library.jpg" alt="a book shelf with a ladder to reach the top"/>
-         <img class="img" src="/assets/images/window_books.jpg" alt="pile of books next to a window"/>
-    </div>
+     <div class="about">
+          <h1 id="text-title">Welcome to JB's Worldwide Book Club</h1>
+          <h3 id="text-subtitle">Find, review, and discuss literature</h3>
+     </div>
+     <div class="home-imgs break">
+          <img class="img" src="/assets/images/library.jpg" alt="a book shelf with a ladder to reach the top"/>
+          <img class="img" src="/assets/images/window_books.jpg" alt="pile of books next to a window"/>
+          <img class="img" src="/assets/images/books.jpg" alt="pile of books next to a window"/>
+     </div>
+     <div class="about">
+          <h2>Reviews for any book in one place!</h2>
+          <p>Unsure whether or not a book is for you? See what other people think!</p>
+          <p>Share your own thoughts as well!</p>
+     </div>
+     <!-- TODO: Take screenshots of other pages and post them here -->
+     <div class="home-imgs break">
+          <img class="img" src="/assets/images/review1.jpg" alt="a book shelf with a ladder to reach the top"/>
+          <img class="img" src="/assets/images/review2.jpg" alt="pile of books next to a window"/>
+     </div>
+     <div class="about">
+          <h2>Search for any of your favorite titles!</h2>
+          <p>Any book series from Lord of the Rings, to stand-out classics like Ready Player One! 
+          It's all here!</p>
+     </div>
+     <div class="home-imgs break">
+          <img class="img" src="<%=locals.img1%>" alt="Lord of the Rings: The Fellowship of the Ring book cover"/>
+          <img class="img" src="<%=locals.img2%>" alt="Ready Player One book cover"/>
+     </div>
+
+     <div class="about">
+          <h2>Keep a journal of all your favorite books!</h2>
+          <p>Reading one or many great novels and want to keep track? 
+          Make an account and keep a journal of your thoughts! 
+          </p>
+     </div>
+     <div class="home-imgs break">
+          <img class="img" src="/assets/images/journal.jpg" alt="pile of books next to a window"/>
+          <img class="img" src="/assets/images/journal_coffee.jpg" alt="pile of books next to a window"/>
+     </div>
+     <div class="about">
+          <h2>See other sites I've built!</h2>
+          <p>Check out my portfolio to see what other sites I've built!</p>
+     </div>
+     <div class="home-imgs">
+          <img class="img" src="/assets/images/portfolio.png" alt="a book shelf with a ladder to reach the top"/>
+     </div>
+
 </home>
 
 <%-include("./partials/footer.ejs")%>
