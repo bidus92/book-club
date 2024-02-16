@@ -23,7 +23,6 @@ body
 .page
 {
     display: flex; 
-    margin-top: auto;
     flex-direction: column;
     position: relative; 
     justify-content: center;

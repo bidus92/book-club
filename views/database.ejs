@@ -1,0 +1,35 @@
+<%-include("./partials/header.ejs")%>
+
+
+<book-database class="page">
+<!-- TODO: Create search criteria for people to access the Open Book API to get info n their books of choice
+Utilize GETs, Form to input search criteria and post to a separate database ejs to show search results-->
+
+    <div id="search-form">
+        <form id="search" action="/database" method="POST">
+            <label for="book-title">Find Your Book</label>
+            <input type="search" id="book-title" name="title" placeholder="Enter book title here"/>
+            <button type="submit" value=<%=locals.title%>>Search</button>
+        </form>
+    </div>
+
+    <%for(let x = 0; x < locals.resultNumber; x++){%>
+        <div id="search-results">
+            <div>
+                <img class="searchImg" src="<%=locals.imgURLs[x]%>"/>
+            </div>
+            <div class="search-details">
+                <p>Title: <%=locals.titles[x]%></p>
+                <p>Authors:
+                <%for(let y = 0; y < locals.authors[x].length; y++){%>
+                    <%=locals.authors[x][y]%>
+                <%}%>
+                </p>
+            </div>
+        </div>
+    <%}%>
+
+</book-database>
+
+
+<%-include("./partials/footer.ejs")%>

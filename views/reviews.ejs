@@ -4,9 +4,17 @@
 <book-reviews class="page">
     <!-- TODO: Create table for reviews already logged 
         and a form to post to add to table and post them here :D -->
-<div class="review">
-    <%=locals.reviews%>
-</div>
+
+    <div id="search-form">
+        <form action="/search" method="POST" role="search">
+            <label for="book-title">Find Books Reviewed</label>
+            <input type="search" id="book-title" name="search-req" placeholder="Enter Book Title Here"/>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="review">
+        <%=locals.reviews%>
+    </div>
 
 </book-reviews>
 
