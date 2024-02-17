@@ -28,7 +28,7 @@ function bookCoverRejected(err)
     console.log("There is no book cover here :("); 
     console.log(err);
 }
-//promsise that url returns if one is found, but if status code 404 is returned it is rejected
+//Promsise function that returns book cover url if one is found, but if status code 404 when it is blank, it is rejected
 async function checkBookCover(bookCoverLink)
 { 
     var bookCover = await axios.get(bookCoverLink);
@@ -82,9 +82,7 @@ app.post("/database", async (req, res) =>
     // console.log(rawTitle);
     // console.log(typeof(rawTitle));
 
-
     const title = rawTitle.replaceAll(" ", "+"); 
-
 
     // console.log(title);
     const result = await axios.get(`https://openlibrary.org/search.json?title=${title}`);
@@ -116,7 +114,8 @@ app.post("/database", async (req, res) =>
         }
         else
         {
-            theAuthors.push(["N/A"]);
+            const noneAvailable = ["No Authors Listed"];
+            theAuthors.push(noneAvailable);
         }
         
         // array of promises to weed out which ones are good to use and which ones get rejected
@@ -128,7 +127,7 @@ app.post("/database", async (req, res) =>
         {
             for(let z = 0; z < searchResults[x].isbn.length; z++)
             {
-                const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-M.jpg?default=false`);
+                const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
                 bookCoverPromises.push(bookCoverPromise);
             }
         
@@ -148,7 +147,7 @@ app.post("/database", async (req, res) =>
                         {
                             found = true; 
                             chosenBookCovers.push(results[w].value);
-                            console.log("The chosen book cover is " + chosenBookCovers[w]);
+                            // console.log("The chosen book cover is " + chosenBookCovers[w]);
                             break;
                         }
                     }
@@ -160,11 +159,34 @@ app.post("/database", async (req, res) =>
         }
     }
 
-   console.log(chosenBookCovers.length);
-   console.log(allAuthors);
+//    console.log(chosenBookCovers.length);
+
+//    console.log(allAuthors);
+//    console.log(allAuthors)
+
+   const numOfPages = Math.ceil(searchResults.length / 10); 
+
+
+//*****page value of buttons is one less than actual page to indicate index. On page 1 it will start at 0, on page 2 it will start at 10, and so on.
+//default starts at 0  
+//TODO: input content into page post event; 
+//    if(!req.body.page)
+//    {
+//       const currentPage = 0; 
+//    }
+//    else
+//    {
+//       const currentPage = req.body.page; 
+//    }
+//    const contentStart = currentPage * 10; 
+
+   //Have limit of page be either the 10 delimiter or the remainder of content. 
+   //for ready player one with 22 results. 
+//    console.log(numOfPages);
 
     res.render("database.ejs", 
     {
+        pageCount: numOfPages,
         resultNumber: searchResults.length, 
         titles: theTitles,
         authors: allAuthors, 

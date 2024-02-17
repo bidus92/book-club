@@ -5,15 +5,28 @@
 <!-- TODO: Create search criteria for people to access the Open Book API to get info n their books of choice
 Utilize GETs, Form to input search criteria and post to a separate database ejs to show search results-->
 
-    <div id="search-form">
-        <form id="search" action="/database" method="POST">
+    <div id="database-search-form">
+        <form id="search-form" action="/database" method="POST">
             <label for="book-title">Find Your Book</label>
             <input type="search" id="book-title" name="title" placeholder="Enter book title here"/>
             <button type="submit" value=<%=locals.title%>>Search</button>
         </form>
     </div>
 
-    <%for(let x = 0; x < locals.resultNumber; x++){%>
+    <div class="page-counter-div-container">
+        <form class="page-form-flex-container" action="/page-select" method="POST">
+            <%for(let x = 0; x < locals.pageCount; x++){%>
+                <div>
+                     <label id="page-label" for="page">Page</label>
+                     <button class="page-button" name="page" type="submit" value="<%=x%>"><%=x + 1%></button>
+                 </div>
+            <%}%>
+        </form>
+     </div>
+
+    <!-- Having Z start at 1 as the array is a multidimensional array to skip the empty array in authors sequence;-->
+  
+    <%for(let x = 0, z = 1; z < locals.resultNumber; x++, z++){%>
         <div id="search-results">
             <div>
                 <img class="searchImg" src="<%=locals.imgURLs[x]%>"/>
@@ -21,13 +34,14 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
             <div class="search-details">
                 <p>Title: <%=locals.titles[x]%></p>
                 <p>Authors:
-                <%for(let y = 0; y < locals.authors[x].length; y++){%>
-                    <%=locals.authors[x][y]%>
+                <%for(let y = 0; y < locals.authors[z].length; y++){%>
+                    <%=locals.authors[z][y]%> <%if(locals.authors[z].length > 1 && y + 1 !== locals.authors[z].length){%> , <%}%>
                 <%}%>
                 </p>
             </div>
         </div>
     <%}%>
+    
 
 </book-database>
 

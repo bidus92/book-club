@@ -1,0 +1,15 @@
+.page-counter-div-container
+{
+    width: 100%; 
+}
+
+.page-form-flex-container
+{
+    display: flex; 
+    flex-direction: row;
+    flex-wrap: wrap; 
+    justify-content: center;
+    align-items: center;
+    width: 100%; 
+    gap: 10px; 
+}
