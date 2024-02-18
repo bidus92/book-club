@@ -79,12 +79,9 @@ app.get("/reviews", (req, res) =>
 app.post("/database", async (req, res) =>
 {
     const rawTitle = req.body.title.toLowerCase(); 
-    // console.log(rawTitle);
-    // console.log(typeof(rawTitle));
 
     const title = rawTitle.replaceAll(" ", "+"); 
 
-    // console.log(title);
     const result = await axios.get(`https://openlibrary.org/search.json?title=${title}`);
     
     var searchResults = result.data.docs;
@@ -115,86 +112,110 @@ app.post("/database", async (req, res) =>
         else
         {
             const noneAvailable = ["No Authors Listed"];
-            theAuthors.push(noneAvailable);
+            allAuthors.push(noneAvailable);
         }
         
         // array of promises to weed out which ones are good to use and which ones get rejected
-        const bookCoverPromises = []; 
         //bool to determine if a book cover was found
         var found = false; 
         //loop through isbn numbers to get the promises to push to promises array to get a cover
         if(searchResults[x].isbn)
         {
+            const bookCoverPromises = []; 
             for(let z = 0; z < searchResults[x].isbn.length; z++)
             {
                 const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
                 bookCoverPromises.push(bookCoverPromise);
-            }
-        
-            const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
-          
-            await allPotentialCovers.then(results =>
-                {
-                   
-                    // console.log(results);
-                    for(let w = 0; w < results.length; w++)
+                const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
+                await allPotentialCovers.then(results =>
                     {
-                        if(results[w].status === "rejected")
+                        for(let w = 0; w < results.length; w++)
                         {
-                            continue;
+                            if(results[w].status === "rejected")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                found = true; 
+                                chosenBookCovers.push(results[w].value);
+                                break;
+                            }
                         }
-                        else
-                        {
-                            found = true; 
-                            chosenBookCovers.push(results[w].value);
-                            // console.log("The chosen book cover is " + chosenBookCovers[w]);
-                            break;
-                        }
-                    }
-                });
+                    });
+                //break loop once we've found our image as no need to go through all ISBN numbers
+                if(found)
+                {
+                    break;
+                }
+            }
         }
         if(!found)
         {
-            chosenBookCovers.push("assets/images/not_available.jpg");
+            chosenBookCovers.push("/assets/images/not_available.jpg");
         }
     }
-
-//    console.log(chosenBookCovers.length);
-
-//    console.log(allAuthors);
-//    console.log(allAuthors)
-
+        
    const numOfPages = Math.ceil(searchResults.length / 10); 
 
 
-//*****page value of buttons is one less than actual page to indicate index. On page 1 it will start at 0, on page 2 it will start at 10, and so on.
-//default starts at 0  
-//TODO: input content into page post event; 
-//    if(!req.body.page)
-//    {
-//       const currentPage = 0; 
-//    }
-//    else
-//    {
-//       const currentPage = req.body.page; 
-//    }
-//    const contentStart = currentPage * 10; 
+//*****page value of buttons is one less than actual page to indicate index. 
+//On page 1 it will start at 0, on page 2 it will start at 10, and so on.
+//default search position starts at value of 0
+  const searchPos = 0; 
 
-   //Have limit of page be either the 10 delimiter or the remainder of content. 
-   //for ready player one with 22 results. 
-//    console.log(numOfPages);
+  //page limit at 11 to account for extra empty array in allAuthors[] TODO: fix so that numbers match
+  const pageLimit = 11; 
+//   
 
     res.render("database.ejs", 
     {
         pageCount: numOfPages,
+        pageLimit: pageLimit,
         resultNumber: searchResults.length, 
         titles: theTitles,
         authors: allAuthors, 
-        imgURLs: chosenBookCovers
+        imgURLs: chosenBookCovers,
+        currentSearchPos: searchPos
     });
 });
 
+app.post("/database/page-select", async (req, res) =>
+{
 
+    //gets all data from original search
+    const resultCount = req.body["resultCount"];
+    console.log(resultCount);
+    const titles = req.body["titles"];
+    console.log(titles);
+    const authors =  req.body["authorNames"];
+    console.log(authors);
+    const imgURLs = req.body["imgURLs"];
+    console.log(imgURLs); 
+    const pageCount = req.body["pageCount"];
+    console.log(pageCount);
+    const currentPage = req.body["page"];
+    console.log(currentPage);
+
+    //takes the value of the page clicked and sets the appropriate index
+    //NOTE: page limit set to one above number because authors array is one index too long to account for initiation
+    const currentSearchPos = currentPage * 10; 
+    const pageLimit = ((currentSearchPos + 11)); 
+
+    console.log(pageLimit);
+
+    res.render("database.ejs" , 
+    {
+        resultNumber: resultCount, 
+        pageCount: pageCount,
+        pageLimit: pageLimit,
+        titles: titles,
+        authors: authors, 
+        imgURLs: imgURLs,
+        currentSearchPos: currentSearchPos
+
+    })
+})
 
 
 app.get("/database", (req, res) =>

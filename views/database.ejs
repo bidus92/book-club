@@ -12,21 +12,28 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
             <button type="submit" value=<%=locals.title%>>Search</button>
         </form>
     </div>
-
+<!-- TODO: abstract to it's own EJS file -->
     <div class="page-counter-div-container">
-        <form class="page-form-flex-container" action="/page-select" method="POST">
+        <form class="page-form-flex-container" action="/database/page-select" method="POST">
+            <input type="hidden" name="pageCount" value="<%=locals.pageCount%>"/>
+            <input type="hidden" name="resultCount" value="<%=locals.resultNumber%>"/>
+            <%for(let x = 0; x < locals.resultNumber; x++){%>
+                <input type="hidden" name="authorNames" value="<%=locals.authors[x]%>"/>
+                <input type="hidden" name="imgURLs" value="<%=locals.imgURLs[x]%>"/>
+                <input type="hidden" name="titles" value="<%=locals.titles[x]%>"/>
+            <%}%>
             <%for(let x = 0; x < locals.pageCount; x++){%>
                 <div>
-                     <label id="page-label" for="page">Page</label>
-                     <button class="page-button" name="page" type="submit" value="<%=x%>"><%=x + 1%></button>
-                 </div>
+                    <label id="page-label" for="page">Page</label>
+                    <button class="page-button" name="page" type="submit" value="<%=x%>"><%=x + 1%></button>
+                </div>
             <%}%>
         </form>
      </div>
 
     <!-- Having Z start at 1 as the array is a multidimensional array to skip the empty array in authors sequence;-->
   
-    <%for(let x = 0, z = 1; z < locals.resultNumber; x++, z++){%>
+    <%for(let x = locals.currentSearchPos, z = locals.currentSearchPos + 1; z < locals.resultNumber && z < locals.pageLimit; x++, z++){%>
         <div id="search-results">
             <div>
                 <img class="searchImg" src="<%=locals.imgURLs[x]%>"/>
