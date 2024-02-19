@@ -8,7 +8,7 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
     <div id="database-search-form">
         <form id="search-form" action="/database" method="POST">
             <label for="book-title">Find Your Book</label>
-            <input type="search" id="book-title" name="title" placeholder="Enter book title here"/>
+            <input type="search" id="book-title" name="title" placeholder="<%=locals.placeholderMessage%>"/>
             <button type="submit" value=<%=locals.title%>>Search</button>
         </form>
     </div>
@@ -17,11 +17,9 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
         <form class="page-form-flex-container" action="/database/page-select" method="POST">
             <input type="hidden" name="pageCount" value="<%=locals.pageCount%>"/>
             <input type="hidden" name="resultCount" value="<%=locals.resultNumber%>"/>
-            <%for(let x = 0; x < locals.resultNumber; x++){%>
-                <input type="hidden" name="authorNames" value="<%=locals.authors[x]%>"/>
-                <input type="hidden" name="imgURLs" value="<%=locals.imgURLs[x]%>"/>
-                <input type="hidden" name="titles" value="<%=locals.titles[x]%>"/>
-            <%}%>
+            <input type="hidden" name="authorNames" value="<%=JSON.stringify(locals.authors)%>"/>
+            <input type="hidden" name="imgURLs" value="<%=JSON.stringify(locals.imgURLs)%>"/>
+            <input type="hidden" name="titles" value="<%=JSON.stringify(locals.titles)%>"/>
             <%for(let x = 0; x < locals.pageCount; x++){%>
                 <div>
                     <label id="page-label" for="page">Page</label>
@@ -33,7 +31,7 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
 
     <!-- Having Z start at 1 as the array is a multidimensional array to skip the empty array in authors sequence;-->
   
-    <%for(let x = locals.currentSearchPos, z = locals.currentSearchPos + 1; z < locals.resultNumber && z < locals.pageLimit; x++, z++){%>
+    <%for(let x = locals.currentSearchPos; x < locals.resultNumber && x < locals.pageLimit; x++){%>
         <div id="search-results">
             <div>
                 <img class="searchImg" src="<%=locals.imgURLs[x]%>"/>
@@ -41,8 +39,8 @@ Utilize GETs, Form to input search criteria and post to a separate database ejs 
             <div class="search-details">
                 <p>Title: <%=locals.titles[x]%></p>
                 <p>Authors:
-                <%for(let y = 0; y < locals.authors[z].length; y++){%>
-                    <%=locals.authors[z][y]%> <%if(locals.authors[z].length > 1 && y + 1 !== locals.authors[z].length){%> , <%}%>
+                <%for(let y = 0; y < locals.authors[x].length; y++){%>
+                    <%=locals.authors[x][y]%> <%if(locals.authors[x].length > 1 && y + 1 !== locals.authors[x].length){%> , <%}%>
                 <%}%>
                 </p>
             </div>

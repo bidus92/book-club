@@ -78,131 +78,124 @@ app.get("/reviews", (req, res) =>
 
 app.post("/database", async (req, res) =>
 {
-    const rawTitle = req.body.title.toLowerCase(); 
+        const rawTitle = req.body.title.toLowerCase(); 
 
-    const title = rawTitle.replaceAll(" ", "+"); 
+        const title = rawTitle.replaceAll(" ", "+"); 
 
-    const result = await axios.get(`https://openlibrary.org/search.json?title=${title}`);
-    
-    var searchResults = result.data.docs;
-
-    //store chosen book covers
-    var chosenBookCovers = [];
-    var theTitles = [];
-
-    var allAuthors = [[]];
-    //acquire documents
-    
-    
-    //loop through results, take title of each result and push authors into an array to list accordingly
-   for(let x = 0; x < searchResults.length; x++)
-    {
-        theTitles.push(searchResults[x].title); 
-        var theAuthors = []; 
-        //loop through authors to push to array to ultimately display
-        if(searchResults[x].author_name)
-        {
-            for(let y = 0; y < searchResults[x].author_name.length; y++)
-            {
-                theAuthors.push(searchResults[x].author_name[y]);
-            }
-
-            allAuthors.push(theAuthors); 
-        }
-        else
-        {
-            const noneAvailable = ["No Authors Listed"];
-            allAuthors.push(noneAvailable);
-        }
+        const result = await axios.get(`https://openlibrary.org/search.json?title=${title}`);
         
-        // array of promises to weed out which ones are good to use and which ones get rejected
-        //bool to determine if a book cover was found
-        var found = false; 
-        //loop through isbn numbers to get the promises to push to promises array to get a cover
-        if(searchResults[x].isbn)
+        var searchResults = result.data.docs;
+
+        //store chosen book covers
+        var chosenBookCovers = [];
+        var theTitles = [];
+
+        var allAuthors = [[]];
+        //acquire documents
+        
+        //loop through results, take title of each result and push authors into an array to list accordingly
+    for(let x = 0; x < searchResults.length; x++)
         {
-            const bookCoverPromises = []; 
-            for(let z = 0; z < searchResults[x].isbn.length; z++)
+            theTitles.push(searchResults[x].title); 
+            var theAuthors = []; 
+            //loop through authors to push to array to ultimately display
+            if(searchResults[x].author_name)
             {
-                const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
-                bookCoverPromises.push(bookCoverPromise);
-                const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
-                await allPotentialCovers.then(results =>
-                    {
-                        for(let w = 0; w < results.length; w++)
-                        {
-                            if(results[w].status === "rejected")
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                found = true; 
-                                chosenBookCovers.push(results[w].value);
-                                break;
-                            }
-                        }
-                    });
-                //break loop once we've found our image as no need to go through all ISBN numbers
-                if(found)
+                for(let y = 0; y < searchResults[x].author_name.length; y++)
                 {
-                    break;
+                    theAuthors.push(searchResults[x].author_name[y]);
+                }
+
+                allAuthors.push(theAuthors); 
+            }
+            else
+            {
+                const noneAvailable = ["No Authors Listed"];
+                allAuthors.push(noneAvailable);
+            }
+            
+            // array of promises to weed out which ones are good to use and which ones get rejected
+            //bool to determine if a book cover was found
+            var found = false; 
+            //loop through isbn numbers to get the promises to push to promises array to get a cover
+            if(searchResults[x].isbn)
+            {
+                const bookCoverPromises = []; 
+                for(let z = 0; z < searchResults[x].isbn.length; z++)
+                {
+                    const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
+                    bookCoverPromises.push(bookCoverPromise);
+                    const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
+                    await allPotentialCovers.then(results =>
+                        {
+                            for(let w = 0; w < results.length; w++)
+                            {
+                                if(results[w].status === "rejected")
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    found = true; 
+                                    chosenBookCovers.push(results[w].value);
+                                    break;
+                                }
+                            }
+                        });
+                    //break loop once we've found our image as no need to go through all ISBN numbers
+                    if(found)
+                    {
+                        break;
+                    }
                 }
             }
+            if(!found)
+            {
+                chosenBookCovers.push("/assets/images/not_available.jpg");
+            }
         }
-        if(!found)
+
+        //removes the first empty index from authors array that was used to initialize so array is now populated only with data
+        allAuthors.shift();
+
+    //Gives search results of 10 results per page
+    const pageLimit = 10;         
+    const numOfPages = Math.ceil(searchResults.length / pageLimit); 
+
+
+    //default search position starts at value of 0
+    const searchPos = 0; 
+
+        res.render("database.ejs", 
         {
-            chosenBookCovers.push("/assets/images/not_available.jpg");
-        }
-    }
-        
-   const numOfPages = Math.ceil(searchResults.length / 10); 
+            pageCount: numOfPages,
+            pageLimit: pageLimit,
+            resultNumber: searchResults.length, 
+            titles: theTitles,
+            authors: allAuthors, 
+            imgURLs: chosenBookCovers,
+            currentSearchPos: searchPos
+        });
 
 
-//*****page value of buttons is one less than actual page to indicate index. 
-//On page 1 it will start at 0, on page 2 it will start at 10, and so on.
-//default search position starts at value of 0
-  const searchPos = 0; 
-
-  //page limit at 11 to account for extra empty array in allAuthors[] TODO: fix so that numbers match
-  const pageLimit = 11; 
-//   
-
-    res.render("database.ejs", 
-    {
-        pageCount: numOfPages,
-        pageLimit: pageLimit,
-        resultNumber: searchResults.length, 
-        titles: theTitles,
-        authors: allAuthors, 
-        imgURLs: chosenBookCovers,
-        currentSearchPos: searchPos
-    });
 });
 
 app.post("/database/page-select", async (req, res) =>
 {
 
-    //gets all data from original search
+    //stringifies array data in the form and parses it here so we can pass the data back to the database page as is
     const resultCount = req.body["resultCount"];
-    console.log(resultCount);
-    const titles = req.body["titles"];
-    console.log(titles);
-    const authors =  req.body["authorNames"];
-    console.log(authors);
-    const imgURLs = req.body["imgURLs"];
-    console.log(imgURLs); 
+    const titles = JSON.parse(req.body["titles"]);
+    const authors =  JSON.parse(req.body["authorNames"]);
+    const imgURLs = JSON.parse(req.body["imgURLs"]);
     const pageCount = req.body["pageCount"];
-    console.log(pageCount);
     const currentPage = req.body["page"];
-    console.log(currentPage);
 
     //takes the value of the page clicked and sets the appropriate index
-    //NOTE: page limit set to one above number because authors array is one index too long to account for initiation
+    
     const currentSearchPos = currentPage * 10; 
-    const pageLimit = ((currentSearchPos + 11)); 
+    const pageLimit = ((currentSearchPos + 10)); 
 
-    console.log(pageLimit);
 
     res.render("database.ejs" , 
     {
@@ -222,7 +215,7 @@ app.get("/database", (req, res) =>
 {
     res.render("database.ejs", 
     {
-
+        placeholderMessage: "Enter book title here"
     });
 });
 
