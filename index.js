@@ -3,12 +3,14 @@ import bodyParser from "body-parser";
 import axios, { all } from "axios"; 
 import pg from "pg"; 
 import ejs from "ejs"; 
+import Timer from "./public/js/timer.js";
+import fs from "fs";
 
 
 const app = express(); 
 app.use(express.static("public")); 
 
-app.use(bodyParser.urlencoded({extended: true})); 
+app.use(bodyParser.urlencoded({extended: true, limit: '2gb'})); 
 
 const port = 3000; 
 
@@ -78,6 +80,8 @@ app.get("/reviews", (req, res) =>
 
 app.post("/database", async (req, res) =>
 {
+        // const overallTimer = new Timer("Overall Time");
+
         const rawTitle = req.body.title.toLowerCase(); 
 
         const title = rawTitle.replaceAll(" ", "+"); 
@@ -86,16 +90,26 @@ app.post("/database", async (req, res) =>
         
         var searchResults = result.data.docs;
 
-        //store chosen book covers
-        var chosenBookCovers = [];
         var theTitles = [];
 
         var allAuthors = [[]];
+
+            //Gives search results of 10 results per page
+        const pageLimit = 10;         
+        const numOfPages = Math.ceil(searchResults.length / pageLimit);
+
+        console.log(numOfPages);
+        const currentPage = 0;  
+        const allCovers = [[]]; 
+        for(let x = 0; x < numOfPages - 1; x++)
+        {
+            allCovers.push([]);
+        }
+
         //acquire documents
-        
         //loop through results, take title of each result and push authors into an array to list accordingly
     for(let x = 0; x < searchResults.length; x++)
-        {
+    {
             theTitles.push(searchResults[x].title); 
             var theAuthors = []; 
             //loop through authors to push to array to ultimately display
@@ -113,71 +127,75 @@ app.post("/database", async (req, res) =>
                 const noneAvailable = ["No Authors Listed"];
                 allAuthors.push(noneAvailable);
             }
-            
-            // array of promises to weed out which ones are good to use and which ones get rejected
-            //bool to determine if a book cover was found
-            var found = false; 
+             
             //loop through isbn numbers to get the promises to push to promises array to get a cover
-            if(searchResults[x].isbn)
+    }
+    
+    
+    // array of promises to weed out which ones are good to use and which ones get rejected
+    //bool to determine if a book cover was found
+    //store chosen book covers
+    var chosenBookCovers = [];
+    
+    for(let x = 0; x < pageLimit; x++)
+    {
+        var found = false;
+        if(searchResults[x].isbn)
+        {
+            const bookCoverPromises = []; 
+            for(let z = 0; z < searchResults[x].isbn.length; z++)
             {
-                const bookCoverPromises = []; 
-                for(let z = 0; z < searchResults[x].isbn.length; z++)
+                const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
+                bookCoverPromises.push(bookCoverPromise);
+            }
+            const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
+            await allPotentialCovers.then(results =>
+            {
+                for(let w = 0; w < results.length; w++)
                 {
-                    const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${searchResults[x].isbn[z]}-L.jpg?default=false`);
-                    bookCoverPromises.push(bookCoverPromise);
-                    const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
-                    await allPotentialCovers.then(results =>
-                        {
-                            for(let w = 0; w < results.length; w++)
-                            {
-                                if(results[w].status === "rejected")
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    found = true; 
-                                    chosenBookCovers.push(results[w].value);
-                                    break;
-                                }
-                            }
-                        });
-                    //break loop once we've found our image as no need to go through all ISBN numbers
-                    if(found)
+                    if(results[w].status === "rejected")
                     {
+                        continue;
+                    }
+                    else
+                    {
+                        found = true; 
+                        chosenBookCovers.push(results[w].value);
                         break;
                     }
                 }
-            }
+            });
+                        //break loop once we've found our image as no need to go through all ISBN numbers
             if(!found)
             {
-                chosenBookCovers.push("/assets/images/not_available.jpg");
+               chosenBookCovers.push("/assets/images/not_available.jpg"); 
             }
         }
-
+        else
+        {
+            chosenBookCovers.push("/assets/images/not_available.jpg"); 
+        }
+     }
+    
+         allCovers[currentPage] = chosenBookCovers;
         //removes the first empty index from authors array that was used to initialize so array is now populated only with data
         allAuthors.shift();
-
-    //Gives search results of 10 results per page
-    const pageLimit = 10;         
-    const numOfPages = Math.ceil(searchResults.length / pageLimit); 
-
 
     //default search position starts at value of 0
     const searchPos = 0; 
 
         res.render("database.ejs", 
         {
+            currentPage: currentPage,
+            results: searchResults,
             pageCount: numOfPages,
             pageLimit: pageLimit,
             resultNumber: searchResults.length, 
             titles: theTitles,
             authors: allAuthors, 
-            imgURLs: chosenBookCovers,
+            imgURLs: allCovers,
             currentSearchPos: searchPos
         });
-
-
 });
 
 app.post("/database/page-select", async (req, res) =>
@@ -185,6 +203,7 @@ app.post("/database/page-select", async (req, res) =>
 
     //stringifies array data in the form and parses it here so we can pass the data back to the database page as is
     const resultCount = req.body["resultCount"];
+    const results = JSON.parse(req.body["results"]); 
     const titles = JSON.parse(req.body["titles"]);
     const authors =  JSON.parse(req.body["authorNames"]);
     const imgURLs = JSON.parse(req.body["imgURLs"]);
@@ -193,22 +212,84 @@ app.post("/database/page-select", async (req, res) =>
 
     //takes the value of the page clicked and sets the appropriate index
     
-    const currentSearchPos = currentPage * 10; 
+    const currentSearchPos = (currentPage) * 10; 
+    console.log(currentSearchPos);
+    const currentPageLimit = 10; 
     const pageLimit = ((currentSearchPos + 10)); 
+    console.log(currentPage);
+
+    
+    var found = false;
+    var chosenBookCovers = []; 
+    var alreadySet;
+    for(let x = 0, y = currentSearchPos; x < currentPageLimit && y < resultCount; x++, y++)
+    {
+        var found = false;
+        if(x === 0 && imgURLs[currentPage].length !== 0)
+        {
+            alreadySet = true;
+            found = true; 
+            break; 
+        }
+        if(results[y].isbn)
+        {        
+            const bookCoverPromises = []; 
+            for(let z = 0; z < results[y].isbn.length; z++)
+            {
+                const bookCoverPromise = checkBookCover(`https://covers.openlibrary.org/b/isbn/${results[y].isbn[z]}-L.jpg?default=false`);
+                bookCoverPromises.push(bookCoverPromise);
+            }
+            const allPotentialCovers = Promise.allSettled(bookCoverPromises); 
+            await allPotentialCovers.then(res =>
+            {
+                for(let w = 0; w < res.length; w++)
+                {
+                    if(res[w].status === "rejected")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        found = true; 
+                        chosenBookCovers.push(res[w].value);
+                        break;
+                    }
+                }
+            });
+                        //break loop once we've found our image as no need to go through all ISBN numbers
+            if(!found)
+            {
+               chosenBookCovers.push("/assets/images/not_available.jpg"); 
+            }
+
+        }
+        else
+        {
+            chosenBookCovers.push("/assets/images/not_available.jpg"); 
+        }
+     }
+
+     if(!alreadySet)
+     {
+        imgURLs[currentPage] = chosenBookCovers;
+     }
+     
 
 
     res.render("database.ejs" , 
     {
+        results: results,
         resultNumber: resultCount, 
         pageCount: pageCount,
         pageLimit: pageLimit,
         titles: titles,
         authors: authors, 
         imgURLs: imgURLs,
-        currentSearchPos: currentSearchPos
+        currentSearchPos: currentSearchPos,
+        currentPage: currentPage
 
-    })
-})
+    });
+});
 
 
 app.get("/database", (req, res) =>

@@ -75,7 +75,8 @@
     {
         justify-content: flex-start;
         align-items: flex-start;
-        max-width: 100%; 
+        max-width: 70%; 
+        text-align: left;
     }
 
 
