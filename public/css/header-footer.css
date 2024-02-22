@@ -26,6 +26,7 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-end;
+    height: 100%;
 }
 
 #book-club-logo > .logo
