@@ -1,24 +1,26 @@
 import express from "express"; 
 import bodyParser from "body-parser"; 
-import axios from "axios"; 
 import pg from "pg"; 
 import path from "path";
-import rootDir from "./utils/path.js"; 
+import rootDir from "./util/path.js"; 
 import ejs from "ejs"; 
-import fs from "fs";
+
+import errorHandler from "./controllers/page-not-found.js";
 import bookClubRoutes from "./routes/book-club.js";
+import databaseRoutes from "./routes/database.js";
+import journalRoutes from "./routes/journal.js";
 
-
+//intitiation of express instance
 const app = express(); 
+
+//configuration of website settings
+app.set("view engine", "ejs");
 app.use(express.static(path.join(rootDir, "public")));
-
-
 app.use(bodyParser.urlencoded({extended: true, limit: '10mb'})); 
-
-const router = express.Router(); 
-
 const port = 3000; 
 
+//TODO: Abstract out of this page 
+//--------------------------------------
 const db = new pg.Client({
     user:"postgres",
     host:"localhost",
@@ -28,22 +30,18 @@ const db = new pg.Client({
 });
 
 db.connect(); 
+//--------------------------------------
 
 app.use(bookClubRoutes);
+app.use(databaseRoutes);
+app.use(journalRoutes);
 
+app.use(errorHandler.pageNotFound); 
 
-app.listen(port, (res, error) =>
+app.listen(port, (res) =>
 {
-    try
-    {
-        console.log(`Now listening at port ${port}`); 
-    }
-    catch(error)
-    {
-        console.log(error); 
-        res.sendStatus(404); 
-    }
-})
+    console.log(`Now listening at port ${port}`); 
+});
 
 
 

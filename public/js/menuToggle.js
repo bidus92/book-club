@@ -21,12 +21,11 @@ switch(activePage)
           selectedMenuItem[2].classList.toggle("selected");
           selectedMenuItem[7].classList.toggle("selected");
      break;
-     case "/notes":
+     case "/journal":
           selectedMenuItem[3].classList.toggle("selected");
           selectedMenuItem[8].classList.toggle("selected");
      break;
 }
-
 
 
 //event listener for menu scrolling
